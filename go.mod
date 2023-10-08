@@ -13,12 +13,15 @@ require (
 	github.com/TwiN/go-color v1.4.1 // indirect
 	github.com/ebitengine/purego v0.1.1 // indirect
 	github.com/eiannone/keyboard v0.0.0-20220611211555-0d226195f203 // indirect
+	github.com/fatih/color v1.15.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20221017161538-93cebf72946b // indirect
 	github.com/gookit/color v1.5.4 // indirect
 	github.com/hajimehoshi/ebiten/v2 v2.4.16 // indirect
 	github.com/hajimehoshi/file2byteslice v1.0.0 // indirect
 	github.com/jezek/xgb v1.1.0 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/pkg/term v1.1.0 // indirect
 	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
 	golang.org/x/exp/shiny v0.0.0-20231005195138-3e424a577f31 // indirect

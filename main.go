@@ -36,26 +36,80 @@ mainLoop:
 
 		switch k.Type() {
 		case zzterm.KeyRune:
-			if k.Rune() == 'c' {
+			switch k.Rune() {
+			case 'c':
 				tterm.Clear()
-				continue
+			case 'w':
+				err := root.NextFocus()
+				if err != nil {
+					panic(err)
+				}
+				tterm.Clear()
+				root.DrawCanBeFocusedTiles()
+			case 'r':
+				err := root.PrevFocus()
+				if err != nil {
+					panic(err)
+				}
+				tterm.Clear()
+				root.DrawCanBeFocusedTiles()
+			case 'a':
+				focused, err := root.FindFocused()
+				if err != nil {
+					panic(err)
+				}
+				root.ClearFocus()
+				err = focused.ChangeSplitDirection(true)
+				if err != nil {
+					panic(err)
+				}
+				focused.CanBeFocused = false
+				focused.NewChild(false, true)
+				focused.NewChild(false, true)
+				focused.Children[1].IsFocused = true
+				tterm.Clear()
+				root.DrawCanBeFocusedTiles()
+				cursor.MoveTo(0, 0)
+				focused.Children[0].Information()
+				cursor.MoveTo(0, 10)
+				focused.Children[1].Information()
+			case 's':
+				focused, err := root.FindFocused()
+				if err != nil {
+					panic(err)
+				}
+				root.ClearFocus()
+				err = focused.ChangeSplitDirection(false)
+				if err != nil {
+					panic(err)
+				}
+				focused.CanBeFocused = false
+				focused.NewChild(false, true)
+				focused.NewChild(false, true)
+				focused.Children[1].IsFocused = true
+				tterm.Clear()
+				root.DrawCanBeFocusedTiles()
+				cursor.MoveTo(0, 0)
+				focused.Children[0].Information()
+				cursor.MoveTo(0, 10)
+				focused.Children[1].Information()
+
+			default:
+				print(string(k.Rune()))
 			}
-			print(string(k.Rune()))
 		case zzterm.KeyEnter:
 			cursor.MoveDownBeginning(1)
 		case zzterm.KeyUp:
 			cursor.MoveUp(1)
 		case zzterm.KeyRight:
-			root.NewChild(true, true)
-			tterm.Clear()
-			for _, c := range root.Children {
-				c.DrawBorder()
-			}
-
+			cursor.MoveRight(1)
 		case zzterm.KeyLeft:
 			cursor.MoveLeft(1)
 		case zzterm.KeyESC, zzterm.KeyCtrlC:
 			break mainLoop
+		case zzterm.KeyDown:
+			cursor.MoveDown(1)
+
 		default:
 			x, y, err := tterm.GetSize()
 			if err != nil {
