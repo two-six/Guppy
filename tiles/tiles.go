@@ -1,6 +1,8 @@
 package tiles
 
 import (
+	"errors"
+
 	"projects/twpsx/guppy/tiles/cursor"
 	"projects/twpsx/guppy/tiles/term"
 )
@@ -48,6 +50,7 @@ func (t *tile) NewChild(vSplit, canBeFocused bool) {
 			posY = t.Children[0].posY
 			sizeX = childWidth
 			sizeY = t.Children[0].sizeY
+			sizeX += t.sizeX - (childWidth * (len(t.Children) + 1))
 		} else {
 			childHeight := t.sizeY / (len(t.Children) + 1)
 			for i, c := range t.Children {
@@ -58,6 +61,7 @@ func (t *tile) NewChild(vSplit, canBeFocused bool) {
 			posX = t.Children[0].posX
 			sizeY = childHeight
 			sizeX = t.Children[0].sizeX
+			sizeY += t.sizeY - (childHeight * (len(t.Children) + 1))
 		}
 	}
 	t.Children = append(t.Children, &tile{
@@ -83,10 +87,17 @@ func (t *tile) GetSize() (int, int) {
 
 func (t *tile) getRootPosition() (int, int) {
 	if t.Parent != nil {
-		ParentX, ParentY := t.Parent.getRootPosition()
-		return ParentX + t.posX, ParentY + t.posY
+		parentX, parentY := t.Parent.getRootPosition()
+		return parentX + t.posX, parentY + t.posY
 	}
 	return t.posX, t.posY
+}
+
+func (t *tile) getRootSize() (int, int) {
+	if t.Parent != nil {
+		return t.Parent.getRootSize()
+	}
+	return t.sizeX, t.sizeY
 }
 
 func (t *tile) GetCursorPos() (int, int) {
@@ -114,4 +125,24 @@ func (t *tile) DrawBorder() {
 		print("|")
 		cursor.MoveTo(x+sx, y+1+i)
 	}
+}
+
+func (t *tile) FindFocused() (*tile, error) {
+	for t.Parent != nil {
+		t = t.Parent
+	}
+	return t.findFocusedFromRoot()
+}
+
+func (t *tile) findFocusedFromRoot() (*tile, error) {
+	if t.isFocused {
+		return t, nil
+	}
+	for _, c := range t.Children {
+		tmp, err := c.findFocusedFromRoot()
+		if err == nil {
+			return tmp, nil
+		}
+	}
+	return t, errors.New("no focused tiles")
 }
