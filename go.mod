@@ -16,6 +16,7 @@ require (
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20221017161538-93cebf72946b // indirect
+	github.com/google/uuid v1.3.1 // indirect
 	github.com/gookit/color v1.5.4 // indirect
 	github.com/hajimehoshi/ebiten/v2 v2.4.16 // indirect
 	github.com/hajimehoshi/file2byteslice v1.0.0 // indirect
