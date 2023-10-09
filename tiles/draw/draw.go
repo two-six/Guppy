@@ -6,18 +6,6 @@ import (
 	"projects/twpsx/guppy/tiles/cursor"
 )
 
-func DrawBorders(root *tiles.Tile) {
-	leaves := tiles.GetLeaves(root)
-	for _, l := range leaves {
-		DrawBorder(l)
-	}
-	fc, err := tiles.FindFocused(root)
-	if err != nil {
-		return
-	}
-	DrawBorder(fc)
-}
-
 func DrawBorder(leaf *tiles.Tile) {
 	var c color.Color
 	if leaf.IsFocused {
@@ -25,8 +13,8 @@ func DrawBorder(leaf *tiles.Tile) {
 	} else {
 		c = *color.New(color.FgBlack)
 	}
-	px, py := leaf.GetPosition()
-	sx, sy := leaf.GetSize()
+	px, py := leaf.PosX, leaf.PosY
+	sx, sy := leaf.SizeX, leaf.SizeY
 	cursor.MoveTo(px, py+1)
 	for i := 0; i < sx; i++ {
 		c.Print("▄")
