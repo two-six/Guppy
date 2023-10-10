@@ -15,6 +15,9 @@ func main() {
 	root.Left.NewChild(root, false)
 	root.Left.Right.NewChild(root, false)
 	root.Right.NewChild(root, true)
+	if err = root.Left.Left.Resize(root, 10); err != nil {
+		panic(err)
+	}
 	term.Clear()
 	tiling.DrawBorders(root)
 	cursor.MoveTo(0, 10)
@@ -27,6 +30,16 @@ func main() {
 			term.Clear()
 			tiling.DrawBorders(root)
 			cursor.MoveTo(0, 10)
+			printAllInformation(root)
 		}
+	}
+}
+
+func printAllInformation(root *tiling.TilingTile) {
+	root.PrintInformation()
+	if root.Left != nil {
+		printAllInformation(root.Left)
+		printAllInformation(root.Right)
+
 	}
 }

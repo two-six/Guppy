@@ -219,12 +219,9 @@ func findParent(root *TilingTile, id string) (*TilingTile, error) {
 	if root.Left.id == id || root.Right.id == id {
 		return root, nil
 	}
-	ls, err := findParent(root.Left, id)
-	if err == nil {
+	if ls, err := findParent(root.Left, id); err == nil {
 		return ls, nil
-	}
-	rs, err := findParent(root.Right, id)
-	if err == nil {
+	} else if rs, err := findParent(root.Right, id); err == nil {
 		return rs, nil
 	}
 	return nil, errors.New("no parent node has a child with provided id")
@@ -237,8 +234,7 @@ func FindFocused(root *TilingTile) (*TilingTile, error) {
 	if root.Left == nil {
 		return nil, errors.New("no focused Tile found")
 	}
-	ls, err := FindFocused(root.Left)
-	if err == nil {
+	if ls, err := FindFocused(root.Left); err == nil {
 		return ls, nil
 	}
 	return FindFocused(root.Right)
@@ -249,9 +245,50 @@ func DrawBorders(root *TilingTile) {
 	for _, l := range leaves {
 		draw.DrawBorder(l.Content)
 	}
-	fc, err := FindFocused(root)
-	if err != nil {
-		return
+	if fc, err := FindFocused(root); err == nil {
+		draw.DrawBorder(fc.Content)
 	}
-	draw.DrawBorder(fc.Content)
+}
+
+func (t *TilingTile) Resize(root *TilingTile, n int) error {
+	parent, err := findParent(root, t.id)
+	if err != nil {
+		return err
+	}
+	vSplit, err := isVSplit(parent)
+	if err != nil {
+		return err
+	}
+	var choosen, other *TilingTile
+	if parent.Left.id == t.id {
+		choosen = parent.Left
+		other = parent.Right
+	} else {
+		choosen = parent.Right
+		other = parent.Left
+	}
+	if vSplit {
+		choosen.Content.SizeX += n
+		if choosen.Content.SizeX > parent.Content.SizeX {
+			choosen.Content.SizeX = parent.Content.SizeX - 1
+		} else if choosen.Content.SizeX == 0 {
+			choosen.Content.SizeX = 1
+		}
+		other.Content.SizeX = parent.Content.SizeX - choosen.Content.SizeX
+		parent.Right.Content.PosX = parent.Content.PosX + parent.Left.Content.SizeX
+	} else {
+		choosen.Content.SizeY += n
+		if choosen.Content.SizeY > parent.Content.SizeY {
+			choosen.Content.SizeY = parent.Content.SizeY - 1
+		} else if choosen.Content.SizeY <= 0 {
+			choosen.Content.SizeY = 1
+		}
+		other.Content.SizeY = parent.Content.SizeY - choosen.Content.SizeY
+		parent.Right.Content.PosY = parent.Content.PosY + parent.Left.Content.SizeY
+	}
+	refreshSizes(choosen)
+	refreshSizes(other)
+	RefreshSize(root)
+
+	return nil
 }

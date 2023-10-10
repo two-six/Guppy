@@ -5,10 +5,11 @@
 - [X] Removing 
 - [X] Focus Mode
 - [X] Refresh to terminal size
-- [ ] Resizing 
+- [X] Resizing 
 - [ ] Floating
 - [ ] Stable
 - [ ] Statusbar <- Use goroutines for this
+- [ ] Remove terminal calls
 - [ ] Mouse support?
 
 ## Commands
