@@ -18,4 +18,15 @@ func main() {
 	term.Clear()
 	tiling.DrawBorders(root)
 	cursor.MoveTo(0, 10)
+	for {
+		newSize, err := tiling.RefreshSize(root)
+		if err != nil {
+			panic(err)
+		}
+		if newSize {
+			term.Clear()
+			tiling.DrawBorders(root)
+			cursor.MoveTo(0, 10)
+		}
+	}
 }

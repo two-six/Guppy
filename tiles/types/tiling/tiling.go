@@ -3,6 +3,7 @@ package tiling
 import (
 	"errors"
 	"fmt"
+	"math"
 
 	"projects/twpsx/guppy/tiles"
 
@@ -53,6 +54,84 @@ func (t *TilingTile) RemoveChild(root *TilingTile) error {
 	return nil
 }
 
+func RefreshSize(root *TilingTile) (bool, error) {
+	sx, sy, err := term.GetSize()
+	if err != nil {
+		return false, err
+	}
+	if sx == root.Content.SizeX && sy == root.Content.SizeY {
+		return false, nil
+	}
+	root.Content.SizeX = sx
+	root.Content.SizeY = sy
+	return true, refreshSizes(root)
+}
+
+func refreshSizes(parent *TilingTile) error {
+	if parent.Left == nil {
+		return nil
+	}
+	vSplit, err := isVSplit(parent)
+	if err != nil {
+		return err
+	}
+	refreshChildrenSize(parent, vSplit)
+	refreshChildrenPos(parent, vSplit)
+	if err = refreshSizes(parent.Left); err != nil {
+		return err
+	}
+	return refreshSizes(parent.Right)
+}
+
+func refreshChildrenSize(parent *TilingTile, vSplit bool) {
+	if vSplit {
+		parent.Left.Content.SizeY = parent.Content.SizeY
+		parent.Right.Content.SizeY = parent.Content.SizeY
+		oldSX := parent.Left.Content.SizeX + parent.Right.Content.SizeX
+		leftPercentage := math.Floor(float64(parent.Left.Content.SizeX) / float64(oldSX) * 100)
+		rightPercentage := math.Floor(float64(parent.Right.Content.SizeX) / float64(oldSX) * 100)
+		if leftPercentage > rightPercentage {
+			parent.Left.Content.SizeX = int(math.Floor(float64(parent.Content.SizeX) / 100 * leftPercentage))
+			parent.Right.Content.SizeX = parent.Content.SizeX - parent.Left.Content.SizeX
+		} else {
+			parent.Right.Content.SizeX = int(math.Floor(float64(parent.Content.SizeX) / 100 * leftPercentage))
+			parent.Left.Content.SizeX = parent.Content.SizeX - parent.Right.Content.SizeX
+
+		}
+	} else {
+		parent.Left.Content.SizeX = parent.Content.SizeX
+		parent.Right.Content.SizeX = parent.Content.SizeX
+		oldSY := parent.Left.Content.SizeY + parent.Right.Content.SizeY
+		leftPercentage := math.Floor(float64(parent.Left.Content.SizeY) / float64(oldSY) * 100)
+		rightPercentage := math.Floor(float64(parent.Right.Content.SizeY) / float64(oldSY) * 100)
+		if leftPercentage > rightPercentage {
+			parent.Left.Content.SizeY = int(math.Floor(float64(parent.Content.SizeY) / 100 * leftPercentage))
+			parent.Right.Content.SizeY = parent.Content.SizeY - parent.Left.Content.SizeY
+		} else {
+			parent.Right.Content.SizeY = int(math.Floor(float64(parent.Content.SizeY) / 100 * leftPercentage))
+			parent.Left.Content.SizeY = parent.Content.SizeY - parent.Right.Content.SizeY
+
+		}
+	}
+}
+
+func refreshChildrenPos(parent *TilingTile, vSplit bool) {
+	if vSplit {
+		parent.Left.Content.PosX = parent.Content.PosX
+		parent.Right.Content.PosX = parent.Content.PosX + parent.Left.Content.SizeX
+	} else {
+		parent.Left.Content.PosY = parent.Content.PosY
+		parent.Right.Content.PosY = parent.Content.PosY + parent.Left.Content.SizeY
+	}
+}
+
+func isVSplit(parent *TilingTile) (bool, error) {
+	if parent.Left == nil {
+		return false, errors.New("parent has no children")
+	}
+	return parent.Left.Content.PosX != parent.Right.Content.PosX, nil
+}
+
 func clearFocused(root *TilingTile) {
 	root.Content.IsFocused = false
 	if root.Left != nil {
@@ -61,11 +140,7 @@ func clearFocused(root *TilingTile) {
 	}
 }
 
-func (t *TilingTile) NewChild(root *TilingTile, vSplit bool) error {
-	if t.Left != nil && t.Right != nil {
-		return errors.New("can only create children on leaves")
-	}
-	clearFocused(root)
+func calculateProportionsOfNewChild(t *TilingTile, vSplit bool) (int, int, int, int) {
 	var sx, sy int
 	var px, py int
 	if vSplit {
@@ -85,6 +160,15 @@ func (t *TilingTile) NewChild(root *TilingTile, vSplit bool) error {
 		px = t.Content.PosX
 		py = t.Content.PosY + sy
 	}
+	return sx, sy, px, py
+}
+
+func (t *TilingTile) NewChild(root *TilingTile, vSplit bool) error {
+	if t.Left != nil && t.Right != nil {
+		return errors.New("can only create children on leaves")
+	}
+	sx, sy, px, py := calculateProportionsOfNewChild(t, vSplit)
+	clearFocused(root)
 	t.Left = &TilingTile{
 		id:    uuid.NewString(),
 		Left:  nil,
