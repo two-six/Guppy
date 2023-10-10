@@ -4,11 +4,12 @@
 - [X] Horizontal and Vertical split
 - [X] Removing 
 - [X] Focus Mode
-- [ ] Refresh to terminal size
+- [X] Refresh to terminal size
 - [ ] Resizing 
 - [ ] Floating
 - [ ] Stable
 - [ ] Statusbar <- Use goroutines for this
+- [ ] Mouse support?
 
 ## Commands
 - [ ] Command Window
@@ -18,3 +19,4 @@
 
 ## Editing
 - [ ] Typing in tiles
+
