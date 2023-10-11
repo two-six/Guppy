@@ -15,24 +15,22 @@ func DrawBorder(leaf *tiles.Tile) {
 	}
 	px, py := leaf.PosX, leaf.PosY
 	sx, sy := leaf.SizeX, leaf.SizeY
-	cursor.MoveTo(px, py+1)
+	cursor.MoveTo(px, py)
 	for i := 0; i < sx; i++ {
-		c.Print("▄")
+		c.Print("█")
 	}
-	cursor.MoveTo(px, py+sy+1)
+	cursor.MoveTo(px, py+sy)
 	for i := 0; i < sx; i++ {
-		c.Print("▀")
+		c.Print("█")
 	}
-	cursor.MoveTo(px, py+2)
-	for i := 1; i < sy+1; i++ {
+	cursor.MoveTo(px, py)
+	for i := 0; i < sy; i++ {
 		c.Print("█")
 		cursor.MoveTo(px, py+1+i)
 	}
-	c.Print("▀")
-	cursor.MoveTo(px+sx, py+2)
-	for i := 1; i < sy+1; i++ {
+	cursor.MoveTo(px+sx, py)
+	for i := 0; i <= sy; i++ {
 		c.Print("█")
 		cursor.MoveTo(px+sx, py+1+i)
 	}
-	c.Print("▀")
 }

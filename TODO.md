@@ -6,8 +6,8 @@
 - [X] Focus Mode
 - [X] Refresh to terminal size
 - [X] Resizing 
-- [ ] Floating
-- [ ] Stable
+- [X] Floating
+- [X] Stable
 - [ ] Statusbar <- Use goroutines for this
 - [ ] Remove terminal calls
 - [ ] Mouse support?
@@ -21,3 +21,9 @@
 ## Editing
 - [ ] Typing in tiles
 
+## UI
+- [X] Drawing tiles
+- [ ] Setup a basic interface
+
+## Other
+- [ ] Create Plugin System

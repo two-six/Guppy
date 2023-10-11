@@ -1,12 +1,21 @@
 package main
 
 import (
+	"projects/twpsx/guppy/tiles"
 	"projects/twpsx/guppy/tiles/cursor"
+	"projects/twpsx/guppy/tiles/draw"
 	"projects/twpsx/guppy/tiles/term"
-	"projects/twpsx/guppy/tiles/types/tiling"
+	"projects/twpsx/guppy/tiles/tiling"
 )
 
 func main() {
+	floating := tiles.Tile{
+		IsFocused: true,
+		PosX:      10,
+		PosY:      10,
+		SizeX:     20,
+		SizeY:     10,
+	}
 	root, err := tiling.NewRoot()
 	if err != nil {
 		panic(err)
@@ -18,9 +27,6 @@ func main() {
 	if err = root.Left.Left.Resize(root, 10); err != nil {
 		panic(err)
 	}
-	term.Clear()
-	tiling.DrawBorders(root)
-	cursor.MoveTo(0, 10)
 	for {
 		newSize, err := tiling.RefreshSize(root)
 		if err != nil {
@@ -29,8 +35,9 @@ func main() {
 		if newSize {
 			term.Clear()
 			tiling.DrawBorders(root)
-			cursor.MoveTo(0, 10)
-			printAllInformation(root)
+			draw.DrawBorder(&floating)
+			cursor.MoveTo(30, 30)
+			// printAllInformation(root)
 		}
 	}
 }
