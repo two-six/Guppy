@@ -20,6 +20,8 @@
 
 ## Editing
 - [ ] Typing in tiles
+- [ ] Margin
+- [ ] Padding
 
 ## UI
 - [X] Drawing tiles

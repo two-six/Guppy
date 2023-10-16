@@ -209,6 +209,72 @@ func GetLeaves(root *TilingTile) []*TilingTile {
 	return leaves
 }
 
+func SwitchFocus(root *TilingTile, toLeft bool) error {
+	leaves := GetLeaves(root)
+	if len(leaves) <= 1 {
+		return errors.New("no leaves")
+	}
+	if toLeft {
+		err := switchFocusLeft(&leaves, root)
+		if err != nil {
+			return err
+		}
+	} else {
+		err := switchFocusRight(&leaves, root)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func switchFocusLeft(leaves *[]*TilingTile, root *TilingTile) error {
+	parent, err := findParent(root, (*leaves)[0].id)
+	if err != nil {
+		return err
+	}
+	for i, leave := range *leaves {
+		if leave.Content.IsFocused && i > 0 {
+			if parent.Right.Content.IsFocused {
+				parent.Left.Content.IsFocused = true
+				parent.Right.Content.IsFocused = false
+			} else {
+				parent.Left.Content.IsFocused = false
+				leftParent, err := findParent(root, (*leaves)[i-1].id)
+				if err != nil {
+					return err
+				}
+				leftParent.Right.Content.IsFocused = true
+			}
+		}
+	}
+	return nil
+}
+
+func switchFocusRight(leaves *[]*TilingTile, root *TilingTile) error {
+	parent, err := findParent(root, (*leaves)[0].id)
+	if err != nil {
+		return err
+	}
+	for i, leave := range *leaves {
+		if leave.Content.IsFocused && i < len(*leaves)-1 {
+			if parent.Left.Content.IsFocused {
+				parent.Right.Content.IsFocused = true
+				parent.Left.Content.IsFocused = false
+			} else {
+				parent.Right.Content.IsFocused = false
+				rightParent, err := findParent(root, (*leaves)[i+1].id)
+				if err != nil {
+					return err
+				}
+				rightParent.Right.Content.IsFocused = true
+			}
+		}
+	}
+	return nil
+}
+
 func findParent(root *TilingTile, id string) (*TilingTile, error) {
 	if root == nil {
 		return nil, errors.New("invalid root")
