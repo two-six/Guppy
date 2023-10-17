@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	pkgterm "github.com/pkg/term"
 
 	"git.sr.ht/~mna/zzterm"
@@ -25,14 +23,8 @@ func main() {
 		panic(err)
 	}
 	root.NewChild(root, true)
-	root.Left.NewChild(root, false)
-	root.Left.Right.NewChild(root, false)
-	root.Right.NewChild(root, true)
-	if err = root.Left.Left.Resize(root, 10); err != nil {
-		panic(err)
-	}
 	input := zzterm.NewInput()
-	go refreshScreen(time.Second/20, root)
+	go refreshScreen(root)
 	for {
 		k, err := input.ReadKey(t)
 		if err != nil {
@@ -40,19 +32,30 @@ func main() {
 		}
 		switch k.Type() {
 		case zzterm.KeyLeft:
-			err := tiling.SwitchFocus(root, true)
-			if err != nil {
-				panic(err)
-			}
+			tiling.SwitchFocus(root, true)
 		case zzterm.KeyRight:
-			err := tiling.SwitchFocus(root, false)
+			tiling.SwitchFocus(root, false)
+		case zzterm.KeyUp:
+			leave, err := tiling.FindFocused(root)
 			if err != nil {
 				panic(err)
 			}
+			leave.NewChild(root, true)
+		case zzterm.KeyDown:
+			leave, err := tiling.FindFocused(root)
+			if err != nil {
+				panic(err)
+			}
+			leave.NewChild(root, false)
+		case zzterm.KeyDelete:
+			leave, err := tiling.FindFocused(root)
+			if err != nil {
+				panic(err)
+			}
+			leave.RemoveChild(root)
 		case zzterm.KeyESC, zzterm.KeyCtrlC:
 			return
 		}
-		tiling.RefreshSize(root)
 		term.Clear()
 		tiling.DrawBorders(root)
 
@@ -68,7 +71,7 @@ func printAllInformation(root *tiling.TilingTile) {
 	}
 }
 
-func refreshScreen(t time.Duration, root *tiling.TilingTile) {
+func refreshScreen(root *tiling.TilingTile) {
 	prevX, prevY := 0, 0
 	for {
 		x, y, err := term.GetSize()
@@ -78,10 +81,9 @@ func refreshScreen(t time.Duration, root *tiling.TilingTile) {
 		if x != prevX || y != prevY {
 			prevX = x
 			prevY = y
-			tiling.RefreshSize(root)
+			tiling.RefreshSize(root, x, y)
 			term.Clear()
 			tiling.DrawBorders(root)
 		}
-		time.Sleep(t)
 	}
 }

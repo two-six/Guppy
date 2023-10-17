@@ -54,11 +54,7 @@ func (t *TilingTile) RemoveChild(root *TilingTile) error {
 	return nil
 }
 
-func RefreshSize(root *TilingTile) (bool, error) {
-	sx, sy, err := term.GetSize()
-	if err != nil {
-		return false, err
-	}
+func RefreshSize(root *TilingTile, sx, sy int) (bool, error) {
 	if sx == root.Content.SizeX && sy == root.Content.SizeY {
 		return false, nil
 	}
@@ -345,7 +341,6 @@ func (t *TilingTile) Resize(root *TilingTile, n int) error {
 	}
 	refreshSizes(choosen)
 	refreshSizes(other)
-	RefreshSize(root)
 
 	return nil
 }
