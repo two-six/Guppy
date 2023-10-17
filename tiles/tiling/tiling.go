@@ -215,13 +215,11 @@ func SwitchFocus(root *TilingTile, toLeft bool) error {
 		return errors.New("no leaves")
 	}
 	if toLeft {
-		err := switchFocusLeft(&leaves, root)
-		if err != nil {
+		if err := switchFocusLeft(&leaves, root); err != nil {
 			return err
 		}
 	} else {
-		err := switchFocusRight(&leaves, root)
-		if err != nil {
+		if err := switchFocusRight(&leaves, root); err != nil {
 			return err
 		}
 	}
@@ -230,46 +228,39 @@ func SwitchFocus(root *TilingTile, toLeft bool) error {
 }
 
 func switchFocusLeft(leaves *[]*TilingTile, root *TilingTile) error {
-	parent, err := findParent(root, (*leaves)[0].id)
-	if err != nil {
-		return err
-	}
+	fmt.Println(leaves)
 	for i, leave := range *leaves {
 		if leave.Content.IsFocused && i > 0 {
-			if parent.Right.Content.IsFocused {
-				parent.Left.Content.IsFocused = true
-				parent.Right.Content.IsFocused = false
+			leave.Content.IsFocused = false
+			leftParent, err := findParent(root, (*leaves)[i-1].id)
+			if err != nil {
+				return err
+			}
+			if leftParent.Left.id == (*leaves)[i-1].id {
+				leftParent.Left.Content.IsFocused = true
 			} else {
-				parent.Left.Content.IsFocused = false
-				leftParent, err := findParent(root, (*leaves)[i-1].id)
-				if err != nil {
-					return err
-				}
 				leftParent.Right.Content.IsFocused = true
 			}
+			break
 		}
 	}
 	return nil
 }
 
 func switchFocusRight(leaves *[]*TilingTile, root *TilingTile) error {
-	parent, err := findParent(root, (*leaves)[0].id)
-	if err != nil {
-		return err
-	}
 	for i, leave := range *leaves {
 		if leave.Content.IsFocused && i < len(*leaves)-1 {
-			if parent.Left.Content.IsFocused {
-				parent.Right.Content.IsFocused = true
-				parent.Left.Content.IsFocused = false
-			} else {
-				parent.Right.Content.IsFocused = false
-				rightParent, err := findParent(root, (*leaves)[i+1].id)
-				if err != nil {
-					return err
-				}
-				rightParent.Right.Content.IsFocused = true
+			leave.Content.IsFocused = false
+			rightParent, err := findParent(root, (*leaves)[i+1].id)
+			if err != nil {
+				return err
 			}
+			if rightParent.Right.id == (*leaves)[i+1].id {
+				rightParent.Right.Content.IsFocused = true
+			} else {
+				rightParent.Left.Content.IsFocused = true
+			}
+			break
 		}
 	}
 	return nil

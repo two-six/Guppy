@@ -1,7 +1,7 @@
 package main
 
 import (
-	"os"
+	"time"
 
 	pkgterm "github.com/pkg/term"
 
@@ -18,6 +18,8 @@ func main() {
 		panic(err)
 	}
 	defer t.Restore()
+	defer term.Clear()
+	defer cursor.MoveTo(0, 0)
 	root, err := tiling.NewRoot()
 	if err != nil {
 		panic(err)
@@ -29,27 +31,31 @@ func main() {
 	if err = root.Left.Left.Resize(root, 10); err != nil {
 		panic(err)
 	}
-	// input := zzterm.NewInput()
-	// shouldRefreshChan := make(chan bool, 1)
-	shouldRefresh := false
+	input := zzterm.NewInput()
+	go refreshScreen(time.Second/20, root)
 	for {
-		newSize, err := tiling.RefreshSize(root)
+		k, err := input.ReadKey(t)
 		if err != nil {
 			panic(err)
 		}
-		if newSize || shouldRefresh {
-			term.Clear()
-			tiling.DrawBorders(root)
-			cursor.MoveTo(30, 30)
-			// printAllInformation(root)
+		switch k.Type() {
+		case zzterm.KeyLeft:
+			err := tiling.SwitchFocus(root, true)
+			if err != nil {
+				panic(err)
+			}
+		case zzterm.KeyRight:
+			err := tiling.SwitchFocus(root, false)
+			if err != nil {
+				panic(err)
+			}
+		case zzterm.KeyESC, zzterm.KeyCtrlC:
+			return
 		}
-		// go readKeys(input, root, t, shouldRefreshChan)
-		// select {
-		// case msg := <-shouldRefreshChan:
-		// 	shouldRefresh = msg
-		// default:
-		// 	shouldRefresh = false
-		// }
+		tiling.RefreshSize(root)
+		term.Clear()
+		tiling.DrawBorders(root)
+
 	}
 }
 
@@ -62,21 +68,20 @@ func printAllInformation(root *tiling.TilingTile) {
 	}
 }
 
-func readKeys(input *zzterm.Input, root *tiling.TilingTile, t *pkgterm.Term, shouldRefreshChan chan<- bool) {
+func refreshScreen(t time.Duration, root *tiling.TilingTile) {
+	prevX, prevY := 0, 0
 	for {
-		k, err := input.ReadKey(t)
+		x, y, err := term.GetSize()
 		if err != nil {
-			panic(err)
+			return
 		}
-		switch k.Type() {
-		case zzterm.KeyLeft:
-			tiling.SwitchFocus(root, true)
-			shouldRefreshChan <- true
-		case zzterm.KeyRight:
-			tiling.SwitchFocus(root, false)
-			shouldRefreshChan <- true
-		case zzterm.KeyESC, zzterm.KeyCtrlC:
-			os.Exit(0)
+		if x != prevX || y != prevY {
+			prevX = x
+			prevY = y
+			tiling.RefreshSize(root)
+			term.Clear()
+			tiling.DrawBorders(root)
 		}
+		time.Sleep(t)
 	}
 }
