@@ -57,15 +57,20 @@ func (t *TilingTile) RemoveChild(root *TilingTile) error {
 	if otherChild.Left == nil {
     parent.Left = nil
     parent.Right = nil
+    refreshSizes(parent)
 	} else {
 		if t.Content.PosX == otherChild.Content.PosX {
-			otherChild.Left.Content.SizeY += t.Content.SizeY-1
-			otherChild.Right.Content.SizeY += t.Content.SizeY-1
+      otherChild.Content.SizeY += t.Content.SizeY
+			otherChild.Left.Content.SizeY += t.Content.SizeY
+			otherChild.Right.Content.SizeY += t.Content.SizeY
+      otherChild.Content.PosY = min(otherChild.Content.PosY, t.Content.PosY)
 			otherChild.Left.Content.PosY = min(otherChild.Content.PosY, t.Content.PosY)
 			otherChild.Right.Content.PosY = min(otherChild.Content.PosY, t.Content.PosY)
 		} else {
-			otherChild.Left.Content.SizeX += t.Content.SizeX
+			otherChild.Content.SizeX += t.Content.SizeX
 			otherChild.Right.Content.SizeX += t.Content.SizeX
+			otherChild.Left.Content.SizeX += t.Content.SizeX
+      otherChild.Content.PosX = min(otherChild.Content.PosX, t.Content.PosX)
 			otherChild.Left.Content.PosX = min(otherChild.Content.PosX, t.Content.PosX)
 			otherChild.Right.Content.PosX = min(otherChild.Content.PosX, t.Content.PosX)
 		}
@@ -76,11 +81,13 @@ func (t *TilingTile) RemoveChild(root *TilingTile) error {
 			parent.Left = otherChild.Left
 			parent.Right = otherChild.Right
 		}
+    refreshSizes(parent.Left)
+    refreshSizes(parent.Right)
 	}
-	refreshSizes(parent)
 
 	return nil
 }
+
 
 func RefreshSize(root *TilingTile, sx, sy int) (bool, error) {
 	if sx == root.Content.SizeX && sy == root.Content.SizeY {
