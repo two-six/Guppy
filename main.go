@@ -53,6 +53,8 @@ func main() {
 				panic(err)
 			}
 			leave.RemoveChild(root)
+			leaves := tiling.GetLeaves(root)
+			leaves[0].Content.IsFocused = true
 		case zzterm.KeyESC, zzterm.KeyCtrlC:
 			return
 		}

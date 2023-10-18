@@ -1,6 +1,6 @@
 module projects/twpsx/guppy
 
-go 1.18
+go 1.21.3
 
 require (
 	git.sr.ht/~mna/zzterm v0.4.0

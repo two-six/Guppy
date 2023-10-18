@@ -48,9 +48,37 @@ func (t *TilingTile) RemoveChild(root *TilingTile) error {
 	if err != nil {
 		return err
 	}
-	parent.Left = nil
-	parent.Right = nil
-	parent.Content.IsFocused = true
+	var otherChild *TilingTile
+	if parent.Left.id == t.id {
+		otherChild = parent.Right
+	} else {
+		otherChild = parent.Left
+	}
+	if otherChild.Left == nil {
+    parent.Left = nil
+    parent.Right = nil
+	} else {
+		if t.Content.PosX == otherChild.Content.PosX {
+			otherChild.Left.Content.SizeY += t.Content.SizeY-1
+			otherChild.Right.Content.SizeY += t.Content.SizeY-1
+			otherChild.Left.Content.PosY = min(otherChild.Content.PosY, t.Content.PosY)
+			otherChild.Right.Content.PosY = min(otherChild.Content.PosY, t.Content.PosY)
+		} else {
+			otherChild.Left.Content.SizeX += t.Content.SizeX
+			otherChild.Right.Content.SizeX += t.Content.SizeX
+			otherChild.Left.Content.PosX = min(otherChild.Content.PosX, t.Content.PosX)
+			otherChild.Right.Content.PosX = min(otherChild.Content.PosX, t.Content.PosX)
+		}
+		if otherChild.id == parent.Left.id {
+			parent.Right = otherChild.Right
+			parent.Left = otherChild.Left
+		} else {
+			parent.Left = otherChild.Left
+			parent.Right = otherChild.Right
+		}
+	}
+	refreshSizes(parent)
+
 	return nil
 }
 
