@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strings"
+
 	pkgterm "github.com/pkg/term"
 
 	"git.sr.ht/~mna/zzterm"
@@ -8,6 +10,7 @@ import (
 	"projects/twpsx/guppy/tiles/cursor"
 	"projects/twpsx/guppy/tiles/term"
 	"projects/twpsx/guppy/tiles/tiling"
+	"projects/twpsx/guppy/typing"
 )
 
 func main() {
@@ -24,7 +27,12 @@ func main() {
 	}
 	root.NewChild(root, true)
 	input := zzterm.NewInput()
-	go refreshScreen(root)
+	leave, err := tiling.FindFocused(root)
+	if err != nil {
+		panic(err)
+	}
+	writer := typing.New(leave.Content.PosX, leave.Content.PosY, leave.Content.SizeX, leave.Content.SizeY)
+	go refreshScreen(root, writer)
 	for {
 		k, err := input.ReadKey(t)
 		if err != nil {
@@ -33,20 +41,40 @@ func main() {
 		switch k.Type() {
 		case zzterm.KeyLeft:
 			tiling.SwitchFocus(root, true)
+			focused, err := tiling.FindFocused(root)
+			if err != nil {
+				panic(err)
+			}
+			refreshWriter(focused, writer)
 		case zzterm.KeyRight:
 			tiling.SwitchFocus(root, false)
+			focused, err := tiling.FindFocused(root)
+			if err != nil {
+				panic(err)
+			}
+			refreshWriter(focused, writer)
 		case zzterm.KeyUp:
 			leave, err := tiling.FindFocused(root)
 			if err != nil {
 				panic(err)
 			}
 			leave.NewChild(root, true)
+			focused, err := tiling.FindFocused(root)
+			if err != nil {
+				panic(err)
+			}
+			refreshWriter(focused, writer)
 		case zzterm.KeyDown:
 			leave, err := tiling.FindFocused(root)
 			if err != nil {
 				panic(err)
 			}
 			leave.NewChild(root, false)
+			focused, err := tiling.FindFocused(root)
+			if err != nil {
+				panic(err)
+			}
+			refreshWriter(focused, writer)
 		case zzterm.KeyDelete:
 			leave, err := tiling.FindFocused(root)
 			if err != nil {
@@ -55,12 +83,23 @@ func main() {
 			leave.RemoveChild(root)
 			leaves := tiling.GetLeaves(root)
 			leaves[0].Content.IsFocused = true
+			refreshWriter(leaves[0], writer)
+		case zzterm.KeyRune:
+			switch k.Rune() {
+			case 'x':
+				writer.RemoveLastCharacter()
+			default:
+				writer.Write(string(k.Rune()))
+			}
+		case zzterm.KeyEnter:
+			writer.Write("\n")
 		case zzterm.KeyESC, zzterm.KeyCtrlC:
 			return
 		}
 		term.Clear()
 		tiling.DrawBorders(root)
-
+		cursor.MoveTo(writer.PosX, writer.PosY)
+		printWriter(writer)
 	}
 }
 
@@ -73,7 +112,7 @@ func printAllInformation(root *tiling.TilingTile) {
 	}
 }
 
-func refreshScreen(root *tiling.TilingTile) {
+func refreshScreen(root *tiling.TilingTile, writer *typing.TypingArea) {
 	prevX, prevY := 0, 0
 	for {
 		x, y, err := term.GetSize()
@@ -86,6 +125,25 @@ func refreshScreen(root *tiling.TilingTile) {
 			tiling.RefreshSize(root, x, y)
 			term.Clear()
 			tiling.DrawBorders(root)
+			cursor.MoveTo(writer.PosX, writer.PosY)
+			writer.Print()
 		}
 	}
+}
+
+func printWriter(writer *typing.TypingArea) {
+	str := writer.Print()
+	cursor.MoveTo(writer.PosX, writer.PosY)
+	for i, line := range strings.Split(str, "\n") {
+		println(line)
+		cursor.MoveTo(writer.PosX, writer.PosY+i+2)
+	}
+}
+
+func refreshWriter(leave *tiling.TilingTile, writer *typing.TypingArea) {
+	writer.PosX = leave.Content.PosX
+	writer.PosY = leave.Content.PosY
+	writer.SizeX = leave.Content.SizeX
+	writer.SizeY = leave.Content.SizeY
+	writer.RepairFrom(0)
 }
