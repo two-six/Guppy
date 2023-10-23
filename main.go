@@ -92,7 +92,7 @@ func main() {
 				writer.Write(string(k.Rune()))
 			}
 		case zzterm.KeyEnter:
-			writer.Write("\n")
+			writer.InsertNewline()
 		case zzterm.KeyESC, zzterm.KeyCtrlC:
 			return
 		}
@@ -145,5 +145,5 @@ func refreshWriter(leave *tiling.TilingTile, writer *typing.TypingArea) {
 	writer.PosY = leave.Content.PosY
 	writer.SizeX = leave.Content.SizeX
 	writer.SizeY = leave.Content.SizeY
-	writer.RepairFrom(0)
+	writer.AlignToSize(0)
 }

@@ -1,47 +1,53 @@
 package typing
 
 type TypingArea struct {
-	Content       []string
-	PosX          int
-	PosY          int
-	WindowPosX    int
-	WindowPosY    int
-	SizeX         int
-	SizeY         int
-	CurrentRow    int
-	CurrentColumn int
+	Content    []string
+	PosX       int
+	PosY       int
+	WindowPosX int
+	WindowPosY int
+	SizeX      int
+	SizeY      int
+	CursorPosX int
+	CursorPosY int
 }
 
 func New(posX int, posY int, sizeX int, sizeY int) *TypingArea {
 	return &TypingArea{
-		PosX:          posX,
-		PosY:          posY,
-		SizeX:         sizeX,
-		SizeY:         sizeY,
-		WindowPosX:    0,
-		WindowPosY:    0,
-		Content:       make([]string, 1),
-		CurrentRow:    0,
-		CurrentColumn: 0,
+		PosX:       posX,
+		PosY:       posY,
+		SizeX:      sizeX,
+		SizeY:      sizeY,
+		WindowPosX: 0,
+		WindowPosY: 0,
+		Content:    make([]string, 1),
+		CursorPosX: 0,
+		CursorPosY: 0,
 	}
 }
 
 func (area *TypingArea) Write(str string) {
-	if len(area.Content[area.CurrentRow]) != 0 {
-		if area.CurrentColumn == len(area.Content[area.CurrentRow]) {
-			area.Content[area.CurrentRow] = area.Content[area.CurrentRow][:area.CurrentColumn] + str
-		} else {
-			area.Content[area.CurrentRow] = area.Content[area.CurrentRow][:area.CurrentColumn] + str + area.Content[area.CurrentRow][area.CurrentColumn+1:]
-		}
-		area.CurrentColumn += len(str)
-	} else {
-		area.Content[area.CurrentColumn] = str
+	area.checkCursorPos()
+	area.Content[area.CursorPosY] = area.Content[area.CursorPosY][:area.CursorPosX] + str
+	area.CursorPosX += len(str)
+	area.AlignToSize(area.CursorPosY)
+}
+
+func (area *TypingArea) InsertNewline() {
+	area.checkCursorPos()
+	area.Content = append(area.Content[:area.CursorPosY+1], append([]string{""}, area.Content[area.CursorPosY+1:]...)...)
+	area.CursorPosY++
+	area.CursorPosX = 0
+}
+
+func (area *TypingArea) checkCursorPos() {
+	if area.CursorPosY >= len(area.Content) {
+		lastLine := area.Content[len(area.Content)-1]
+		area.CursorPosY = len(area.Content) - 1
+		area.CursorPosX = len(lastLine) - 1
 	}
-	if len(area.Content[area.CurrentRow]) > area.SizeX {
-		additionalLen := area.Content[area.CurrentRow][area.SizeX:]
-		area.RepairFrom(area.CurrentRow)
-		area.CurrentRow += 1
-		area.CurrentColumn = len(additionalLen)
+	if area.CursorPosX > len(area.Content[area.CursorPosY]) {
+		area.CursorPosX = len(area.Content[area.CursorPosY]) - 1
 	}
 }
 
@@ -49,14 +55,14 @@ func (area *TypingArea) RemoveLastCharacter() {
 	if area.Content[0] == "" {
 		return
 	}
-	if area.Content[area.CurrentRow] == "" {
-		area.CurrentRow--
+	if area.Content[area.CursorPosY] == "" {
+		area.CursorPosY--
 	}
-	area.Content[area.CurrentRow] = area.Content[area.CurrentRow][:len(area.Content[area.CurrentRow])-1]
-	if area.CurrentColumn == 0 {
-		area.CurrentColumn = len(area.Content[area.CurrentRow])
+	area.Content[area.CursorPosY] = area.Content[area.CursorPosY][:len(area.Content[area.CursorPosY])-1]
+	if area.CursorPosX == 0 {
+		area.CursorPosX = len(area.Content[area.CursorPosY])
 	} else {
-		area.CurrentColumn--
+		area.CursorPosX--
 	}
 }
 
@@ -74,14 +80,14 @@ func (area *TypingArea) Print() string {
 	return result
 }
 
-func (area *TypingArea) RepairFrom(row int) {
+func (area *TypingArea) AlignToSize(row int) {
 	if len(area.Content[row]) > area.SizeX {
 		tmpString := area.Content[row]
 		area.Content[row] = tmpString[:area.SizeX]
-		if len(area.Content) == area.CurrentRow+1 {
-			area.Content = append(area.Content, tmpString[area.SizeX:])
-		} else {
-			area.Content[row+1] = tmpString[area.SizeX:]
-		}
+		area.Content = append(area.Content, tmpString[area.SizeX:])
+		area.CursorPosY++
+	}
+	if row < len(area.Content)-1 {
+		area.AlignToSize(row + 1)
 	}
 }
