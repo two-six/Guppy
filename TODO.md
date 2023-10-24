@@ -8,7 +8,7 @@
 - [X] Resizing 
 - [X] Floating
 - [X] Stable
-- [ ] Statusbar <- Use goroutines for this
+- [ ] Statusbar
 - [ ] Remove terminal calls
 - [ ] Mouse support?
 
@@ -29,3 +29,5 @@
 
 ## Other
 - [ ] Create Plugin System
+- [ ] Repair tiles sizes
+- [ ] Stop refreshing screen when typing or switching tile
