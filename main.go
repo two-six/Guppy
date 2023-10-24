@@ -98,8 +98,8 @@ func main() {
 		}
 		term.Clear()
 		tiling.DrawBorders(root)
-		cursor.MoveTo(writer.PosX, writer.PosY)
 		printWriter(writer)
+		cursor.MoveTo(writer.PosX+writer.CursorPosX, writer.PosY+writer.CursorPosY+1)
 	}
 }
 
