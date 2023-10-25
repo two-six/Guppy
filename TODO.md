@@ -19,7 +19,7 @@
 - [ ] Autocompletion
 
 ## Editing
-- [ ] Typing in tiles
+- [X] Typing in tiles
 - [ ] Margin
 - [ ] Padding
 
@@ -29,5 +29,6 @@
 
 ## Other
 - [ ] Create Plugin System
-- [ ] Repair tiles sizes
-- [ ] Stop refreshing screen when typing or switching tile
+- [X] Repair tile sizes
+- [ ] Repair tile sizes when resizing window
+- [X] Stop refreshing screen when typing

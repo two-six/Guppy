@@ -198,6 +198,14 @@ func (t *TilingTile) NewChild(root *TilingTile, vSplit bool) error {
 		return errors.New("can only create children on leaves")
 	}
 	sx, sy, px, py := calculateProportionsOfNewChild(t, vSplit)
+	var rSX, rSY int
+	if vSplit {
+		rSX = t.Content.SizeX - sx
+		rSY = sy
+	} else {
+		rSX = sx
+		rSY = t.Content.SizeY - sy
+	}
 	clearFocused(root)
 	t.Left = &TilingTile{
 		id:    uuid.NewString(),
@@ -217,8 +225,8 @@ func (t *TilingTile) NewChild(root *TilingTile, vSplit bool) error {
 		Right: nil,
 		Content: &tiles.Tile{
 			IsFocused: true,
-			SizeX:     sx,
-			SizeY:     sy,
+			SizeX:     rSX,
+			SizeY:     rSY,
 			PosX:      px,
 			PosY:      py,
 		},
