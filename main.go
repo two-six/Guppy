@@ -46,6 +46,10 @@ func main() {
 				panic(err)
 			}
 			refreshWriter(focused, writer)
+			term.Clear()
+			tiling.DrawBorders(root)
+			printWriter(writer)
+			cursor.MoveTo(writer.PosX+writer.CursorPosX, writer.PosY+writer.CursorPosY+1)
 		case zzterm.KeyRight:
 			tiling.SwitchFocus(root, false)
 			focused, err := tiling.FindFocused(root)
@@ -53,6 +57,10 @@ func main() {
 				panic(err)
 			}
 			refreshWriter(focused, writer)
+			term.Clear()
+			tiling.DrawBorders(root)
+			printWriter(writer)
+			cursor.MoveTo(writer.PosX+writer.CursorPosX, writer.PosY+writer.CursorPosY+1)
 		case zzterm.KeyUp:
 			leave, err := tiling.FindFocused(root)
 			if err != nil {
@@ -64,6 +72,10 @@ func main() {
 				panic(err)
 			}
 			refreshWriter(focused, writer)
+			term.Clear()
+			tiling.DrawBorders(root)
+			printWriter(writer)
+			cursor.MoveTo(writer.PosX+writer.CursorPosX, writer.PosY+writer.CursorPosY+1)
 		case zzterm.KeyDown:
 			leave, err := tiling.FindFocused(root)
 			if err != nil {
@@ -75,6 +87,10 @@ func main() {
 				panic(err)
 			}
 			refreshWriter(focused, writer)
+			term.Clear()
+			tiling.DrawBorders(root)
+			printWriter(writer)
+			cursor.MoveTo(writer.PosX+writer.CursorPosX, writer.PosY+writer.CursorPosY+1)
 		case zzterm.KeyDelete:
 			leave, err := tiling.FindFocused(root)
 			if err != nil {
@@ -84,6 +100,8 @@ func main() {
 			leaves := tiling.GetLeaves(root)
 			leaves[0].Content.IsFocused = true
 			refreshWriter(leaves[0], writer)
+			printWriter(writer)
+			cursor.MoveTo(writer.PosX+writer.CursorPosX, writer.PosY+writer.CursorPosY+1)
 		case zzterm.KeyRune:
 			switch k.Rune() {
 			case 'x':
@@ -91,15 +109,15 @@ func main() {
 			default:
 				writer.Write(string(k.Rune()))
 			}
+			printWriter(writer)
+			cursor.MoveTo(writer.PosX+writer.CursorPosX, writer.PosY+writer.CursorPosY+1)
 		case zzterm.KeyEnter:
 			writer.InsertNewline()
+			printWriter(writer)
+			cursor.MoveTo(writer.PosX+writer.CursorPosX, writer.PosY+writer.CursorPosY+1)
 		case zzterm.KeyESC, zzterm.KeyCtrlC:
 			return
 		}
-		term.Clear()
-		tiling.DrawBorders(root)
-		printWriter(writer)
-		cursor.MoveTo(writer.PosX+writer.CursorPosX, writer.PosY+writer.CursorPosY+1)
 	}
 }
 

@@ -75,7 +75,7 @@ func (area *TypingArea) Print() string {
 	}
 	result := ""
 	for _, line := range area.Content[area.WindowPosY:bottomEdge] {
-		result += line + "\n"
+		result += line + area.fillRestWithWhitespace(&line) + "\n"
 	}
 	return result
 }
@@ -90,4 +90,13 @@ func (area *TypingArea) AlignToSize(row int) {
 	if row < len(area.Content)-1 {
 		area.AlignToSize(row + 1)
 	}
+}
+
+func (area *TypingArea) fillRestWithWhitespace(text *string) string {
+	n := area.SizeX - len(*text)
+	result := ""
+	for i := 0; i < n; i++ {
+		result += " "
+	}
+	return result
 }
