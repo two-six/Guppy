@@ -83,13 +83,13 @@ func (t *TilingTile) RemoveChild(root *TilingTile) error {
 	return nil
 }
 
-func RefreshSize(root *TilingTile, sx, sy int) (bool, error) {
+func RefreshSize(root *TilingTile, sx, sy int) error {
 	if sx == root.Content.SizeX && sy == root.Content.SizeY {
-		return false, nil
+		return nil
 	}
 	root.Content.SizeX = sx
 	root.Content.SizeY = sy
-	return true, refreshSizes(root)
+	return refreshSizes(root)
 }
 
 func refreshSizes(parent *TilingTile) error {
