@@ -8,7 +8,6 @@ import (
 	"projects/twpsx/guppy/tiles"
 
 	"projects/twpsx/guppy/tiles/draw"
-	"projects/twpsx/guppy/tiles/term"
 
 	"github.com/google/uuid"
 )
@@ -24,11 +23,7 @@ func (t *TilingTile) PrintInformation() {
 	fmt.Println("Tile", t.id, "IsFocused", t.Content.IsFocused, "pos", t.Content.PosX, t.Content.PosY, "size", t.Content.SizeX, t.Content.SizeY)
 }
 
-func NewRoot() (*TilingTile, error) {
-	sx, sy, err := term.GetSize()
-	if err != nil {
-		return nil, err
-	}
+func NewRoot(sx, sy int) (*TilingTile, error) {
 	return &TilingTile{
 		id:    uuid.NewString(),
 		Left:  nil,

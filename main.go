@@ -7,8 +7,8 @@ import (
 
 	"git.sr.ht/~mna/zzterm"
 
-	"projects/twpsx/guppy/tiles/cursor"
-	"projects/twpsx/guppy/tiles/term"
+	"projects/twpsx/guppy/cursor"
+	"projects/twpsx/guppy/term"
 	"projects/twpsx/guppy/tiles/tiling"
 	"projects/twpsx/guppy/typing"
 )
@@ -21,7 +21,11 @@ func main() {
 	defer t.Restore()
 	defer term.Clear()
 	defer cursor.MoveTo(0, 0)
-	root, err := tiling.NewRoot()
+	sx, sy, err := term.GetSize()
+	if err != nil {
+		panic(err)
+	}
+	root, err := tiling.NewRoot(sx, sy)
 	if err != nil {
 		panic(err)
 	}

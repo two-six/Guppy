@@ -2,8 +2,8 @@ package draw
 
 import (
 	"github.com/fatih/color"
+	"projects/twpsx/guppy/cursor"
 	"projects/twpsx/guppy/tiles"
-	"projects/twpsx/guppy/tiles/cursor"
 )
 
 func DrawBorder(leaf *tiles.Tile) {
