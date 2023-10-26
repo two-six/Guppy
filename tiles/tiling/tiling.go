@@ -266,9 +266,9 @@ func SwitchFocus(root *TilingTile, toLeft bool) error {
 }
 
 func switchFocusLeft(leaves *[]*TilingTile, root *TilingTile) error {
-	for i, leave := range *leaves {
-		if leave.Content.IsFocused && i > 0 {
-			leave.Content.IsFocused = false
+	for i, leaf := range *leaves {
+		if leaf.Content.IsFocused && i > 0 {
+			leaf.Content.IsFocused = false
 			leftParent, err := findParent(root, (*leaves)[i-1].id)
 			if err != nil {
 				return err
@@ -285,9 +285,9 @@ func switchFocusLeft(leaves *[]*TilingTile, root *TilingTile) error {
 }
 
 func switchFocusRight(leaves *[]*TilingTile, root *TilingTile) error {
-	for i, leave := range *leaves {
-		if leave.Content.IsFocused && i < len(*leaves)-1 {
-			leave.Content.IsFocused = false
+	for i, leaf := range *leaves {
+		if leaf.Content.IsFocused && i < len(*leaves)-1 {
+			leaf.Content.IsFocused = false
 			rightParent, err := findParent(root, (*leaves)[i+1].id)
 			if err != nil {
 				return err

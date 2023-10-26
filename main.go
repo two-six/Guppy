@@ -27,11 +27,11 @@ func main() {
 	}
 	root.NewChild(root, true)
 	input := zzterm.NewInput()
-	leave, err := tiling.FindFocused(root)
+	leaf, err := tiling.FindFocused(root)
 	if err != nil {
 		panic(err)
 	}
-	writer := typing.New(leave.Content.PosX, leave.Content.PosY, leave.Content.SizeX, leave.Content.SizeY)
+	writer := typing.New(leaf.Content.PosX, leaf.Content.PosY, leaf.Content.SizeX, leaf.Content.SizeY)
 	go refreshScreen(root, writer)
 	for {
 		k, err := input.ReadKey(t)
@@ -62,11 +62,11 @@ func main() {
 			printWriter(writer)
 			cursor.MoveTo(writer.PosX+writer.CursorPosX, writer.PosY+writer.CursorPosY+1)
 		case zzterm.KeyUp:
-			leave, err := tiling.FindFocused(root)
+			leaf, err := tiling.FindFocused(root)
 			if err != nil {
 				panic(err)
 			}
-			leave.NewChild(root, true)
+			leaf.NewChild(root, true)
 			focused, err := tiling.FindFocused(root)
 			if err != nil {
 				panic(err)
@@ -77,11 +77,11 @@ func main() {
 			printWriter(writer)
 			cursor.MoveTo(writer.PosX+writer.CursorPosX, writer.PosY+writer.CursorPosY+1)
 		case zzterm.KeyDown:
-			leave, err := tiling.FindFocused(root)
+			leaf, err := tiling.FindFocused(root)
 			if err != nil {
 				panic(err)
 			}
-			leave.NewChild(root, false)
+			leaf.NewChild(root, false)
 			focused, err := tiling.FindFocused(root)
 			if err != nil {
 				panic(err)
@@ -92,11 +92,11 @@ func main() {
 			printWriter(writer)
 			cursor.MoveTo(writer.PosX+writer.CursorPosX, writer.PosY+writer.CursorPosY+1)
 		case zzterm.KeyDelete:
-			leave, err := tiling.FindFocused(root)
+			leaf, err := tiling.FindFocused(root)
 			if err != nil {
 				panic(err)
 			}
-			leave.RemoveChild(root)
+			leaf.RemoveChild(root)
 			leaves := tiling.GetLeaves(root)
 			leaves[0].Content.IsFocused = true
 			refreshWriter(leaves[0], writer)
@@ -158,10 +158,10 @@ func printWriter(writer *typing.TypingArea) {
 	}
 }
 
-func refreshWriter(leave *tiling.TilingTile, writer *typing.TypingArea) {
-	writer.PosX = leave.Content.PosX
-	writer.PosY = leave.Content.PosY
-	writer.SizeX = leave.Content.SizeX
-	writer.SizeY = leave.Content.SizeY
+func refreshWriter(leaf *tiling.TilingTile, writer *typing.TypingArea) {
+	writer.PosX = leaf.Content.PosX
+	writer.PosY = leaf.Content.PosY
+	writer.SizeX = leaf.Content.SizeX
+	writer.SizeY = leaf.Content.SizeY
 	writer.AlignToSize(0)
 }
